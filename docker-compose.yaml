@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: example-api
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=example
+      - DB_PASSWORD=example_password
+      - DB_NAME=example
+      - GIN_MODE=debug
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - example-network
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: example-migrate
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=example
+      - DB_PASSWORD=example_password
+      - DB_NAME=example
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - example-network
+    command: ["./db-cli", "-migrate"]
+    profiles: ["tools"]
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: example-seed
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=example
+      - DB_PASSWORD=example_password
+      - DB_NAME=example
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - example-network
+    command: ["./db-cli", "-seed"]
+    profiles: ["tools"]
+
+  refresh:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: example-refresh
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=example
+      - DB_PASSWORD=example_password
+      - DB_NAME=example
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - example-network
+    command: ["./db-cli", "-refresh"]
+    profiles: ["tools"]
+
+  mysql:
+    image: mysql:8.0
+    container_name: example-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=example_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - example-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    name: example-mysql-data
+
+networks:
+  example-network:
+    name: example-network
+    driver: bridge

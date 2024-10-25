@@ -1,0 +1,55 @@
+# Ignore everything
+*
+
+# Allow specific files and directories
+!go.mod
+!go.sum
+!main.go
+!.env
+!.env.example
+
+# Allow essential directories
+!cmd/
+!config/
+!controllers/
+!database/
+!docs/
+!middleware/
+!models/
+!routes/
+!services/
+!types/
+!utils/
+
+# Ignore unnecessary files inside allowed directories
+**/*_test.go
+**/tests/
+**/.git*
+**/.env.local
+**/.DS_Store
+**/tmp/
+**/temp/
+
+# Ignore build artifacts even in allowed directories
+**/bin/
+**/build/
+**/dist/
+
+# Ignore logs
+**/*.log
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignore any local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore documentation except API docs
+docs/*
+!docs/swagger.*
+!docs/docs.go

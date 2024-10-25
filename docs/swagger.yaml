@@ -1,0 +1,280 @@
+definitions:
+  common.ErrorResponse:
+    properties:
+      error:
+        example: Invalid request parameters
+        type: string
+      message:
+        example: Email is already taken
+        type: string
+    type: object
+  controllers.HealthResponse:
+    properties:
+      status:
+        example: healthy
+        type: string
+      timestamp:
+        example: "2024-10-26T12:34:56.789Z"
+        type: string
+    type: object
+  user.CreateRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: secretpassword123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  user.ListResponse:
+    properties:
+      page:
+        example: 1
+        type: integer
+      per_page:
+        example: 10
+        type: integer
+      total_count:
+        example: 100
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/user.Response'
+        type: array
+    type: object
+  user.Response:
+    properties:
+      created_at:
+        example: "2024-10-26T12:34:56Z"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2024-10-26T12:34:56Z"
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  v1.ErrorResponse:
+    properties:
+      error:
+        example: Invalid request parameters
+        type: string
+      message:
+        example: Email is already taken
+        type: string
+    type: object
+  v1.UserResponse:
+    properties:
+      created_at:
+        example: "2024-10-26T12:34:56Z"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2024-10-26T12:34:56Z"
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  v1.UserUpdateRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: newpassword123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: canhcvp1998@gmail.com
+    name: Canh Nguyen
+  description: A backend service for Example platform
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Example API
+  version: "1.0"
+paths:
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of users
+      parameters:
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - example: 10
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: List users
+      tags:
+      - v1/users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User Information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Create user
+      tags:
+      - v1/users
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Delete user
+      tags:
+      - v1/users
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Get user
+      tags:
+      - v1/users
+    put:
+      consumes:
+      - application/json
+      description: Update user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Update user
+      tags:
+      - v1/users
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: get the health status of the service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.HealthResponse'
+      summary: Get health status
+      tags:
+      - health
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
